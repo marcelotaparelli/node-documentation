@@ -13,7 +13,7 @@ O **Runtime**, é um **conjunto de ferramentas, bibliotecas e mecanismos que per
 
 **V8**: é **o motor JavaScript** criado pelo Google e escrito em C++, usado no Chrome e no Node.js. É responsável por **transformar texto em código de máquina nativo e executar o código JS**.
 
-Passo a passo do funcionamento do v*:
+Passo a passo do funcionamento do v8:
 
 **1. Parsing**
 - O código JS é lido e transformado em tokens (palavras-chave, variáveis, operadores).
