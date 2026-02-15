@@ -30,3 +30,51 @@ Passo a passo do funcionamento do v8:
 - O ciclo interpretar -> otimizar -> executar garante que o JS rode com desempenho próximo ao de linguagens compiladas.
 
 <br><br><br>
+
+## Libs externas
+
+**npm install yourPackage**
+- Instala pacotes externos
+
+**npm audit**
+- Roda análise automática de vulnerabilidades conhecidas
+
+**nvm** 
+- Node version manager
+ex: nvm use 16
+
+## Checklist para avaliar pacotes npm em produção
+
+**Popularidade e manutenção**
+- Verifique **downloads semanais** no npm (milhares = mais confiável).
+- Veja a **última atualização** (se está ativo ou abandonado).
+- Analise o **histórico de versões** (lançamentos frequentes indicam manutenção).
+
+**Autor e comunidade**
+- Confira **quem mantém** (empresa, dev conhecido, comunidade ativa).
+- Olhe **issues e PRs** no GitHub (se são respondidos e fechados).
+- Veja **estrelas e forks** no GitHub (indicador de adoção).
+
+**Segurança**
+- Rode `npm audit` para detectar vulnerabilidades.
+- Analise **dependências** (quanto menos, melhor).
+- Cuidado com **typosquatting** (nomes parecidos com pacotes famosos).
+
+**Qualidade do código**
+- Leia a **documentação** (clara e atualizada).
+- Verifique se há **testes automatizados**.
+- Veja se suporta **TypeScript** (tipos oficiais ou `@types`).
+
+**Licença**
+- Confirme que é **open source** e permite uso comercial.
+- Evite pacotes sem licença ou com licenças obscuras.
+
+**Riscos comuns**
+- Pacotes **abandonados** → vulneráveis.
+- Pacotes **novos demais** → sem validação de mercado.
+- Pacotes com **dependências suspeitas** → risco de malware.
+
+
+
+
+

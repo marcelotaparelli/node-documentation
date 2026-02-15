@@ -143,6 +143,13 @@ console.log(elements.join(""));
 
 <br><br>
 
+## Object Methods
+
+**Object.keys(obj)**
+- Retorna um array de propriedades enumeráveis de um determinado objeto.
+
+<br><br>
+
 ## Tratamento de exceções
 
 **try...catch**
