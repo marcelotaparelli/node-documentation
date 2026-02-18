@@ -23,3 +23,10 @@
 <a href ="https://expressjs.com/pt-br/">npm install express --save</a>
 
 <br>
+
+**eslint**
+- Acha bugs, precisa configurar na sua IDE
+
+<a href="https://eslint.org/">npm init @eslint/config@latest</a>
+
+<br>
