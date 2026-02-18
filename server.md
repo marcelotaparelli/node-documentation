@@ -548,6 +548,8 @@ app.use((erro, req, res, next) => {
 ```
 // src/middlewares/manipuladorDeErros.js
 
+import mongoose from "mongoose";
+
 function manipuladorDeErros (erro, req, res, next) {
     if (erro instaceof mongoose.Error.CastError) {
         res.status(404).send({ message: "Um ou mais dados fornecidos estão incorrestos." });
@@ -645,6 +647,143 @@ function manipualdorDeErros (...
 ```
 
 ```
-// livrosController.js
+// src/erros/RequisicaoIncorreta.js
+
+import ErroBase from "./ErroBase.js";
+
+class RequisicaoIncorreta extends ErroBase {
+    constructor(mensagem = "Um ou mais dados fornecidos estão incorretos!") {
+        super(mensagem, 400);
+    }
+}
+
+export default RequisicaoIncorreta;
+```
 
 ```
+//manipuladorDeErros.js
+
+...
+import ErroBase from "../erros/ErroBase.js";
+import RequisicaoIncorreta from "../erros/RequisicaoIncorreta.js";
+...
+
+function manipuladorDeErros (...
+    ...
+    if (erro instanceof mongoose.Error.CastError) {
+        new RequisicaoIncorreta().enviarResposta(res);
+    } else if ...
+...
+```
+
+```
+// src/erros/ErroValidacao.js
+
+import RequisicaoIncorreta from "./RequisicaoIncorreta.js";
+
+class ErroValidacao extends RequisicaoIncorreta {
+    constructor(erro) {
+        const mensagensErro = Object.values(erro.errors)
+            .map(erro => erro.message)
+            .join("; ");
+
+        super(`Os seguintes erros foram encontrados: ${mensagensErro}`);
+    }
+}
+
+export default ErroValidacao;
+```
+
+```
+//manipuladorDeErros.js
+
+...
+import ErroValidacao from "../erros/ErroValidacao.js";
+...
+
+function manipualdorDeErros (...
+    ...
+    else if (erro instanceof mongoose.Error.ValidationError) {
+        new ErroValidacao(erro).enviarResposta(res);
+    } else ...
+...
+```
+
+<br><br>
+
+**tratando página 404**
+
+**ATENÇÃO: A ORDEM DE IMPORTAÇÃO DOS MANIPULADORES IMPORTA PARA O FUNCIONAMENTO CORRETO, ASSIM COMO O POSICIONAMENTO DOS MIDDLEWARES NO APP.JS**
+- deve se colocar primeiro a importação dos middlewares e depois das rotas
+- acionar o .use dos middlewares depois do routes(app)
+
+```
+// app.js
+import manipulador404 from "./middlewares/manipulador404.js";
+...
+route(app);
+
+app.use(manipulador404);
+...
+```
+
+```
+// src/middlewares/manipulador404.js
+import NaoEncontado from "../erros/NaoEncontrado.js";
+
+function manipulador404(req, res, next) {
+    const erro404 = new NaoEncontrado();
+    next(erro404);
+}
+
+export default manipulador404;
+```
+
+```
+// src/erros/NaoEncontrado.js
+import ErroBase from "./ErroBase.js"
+
+class NaoEncontrado extends ErroBase {
+    constructor(mensagem = "Página não encontrada.") {
+        super(mensagem, 404);
+    }
+ }
+
+export default NaoEncontrado;
+```
+
+```
+// src/middlewares/manipuladorDeErros.js
+
+function manipulador...
+    else if (erro instanceof NaoEncontrado) {
+        erro.enviarReposta(res);
+    }
+```
+```
+// src/controllers/autoresController.js
+import NaoEncontrado from "../erros/NaoEncontrado.js";
+...
+    static listarAutorPorId...
+        else {
+         next(new NaoEncontado("Id do Autor não localizado."));
+        }
+...
+```
+
+<br><br>
+
+**validações do mongoose**
+
+```
+// Livro.js
+
+...
+    numeroPaginas: {
+        type: Number,
+        min: 10,
+        max: 5000
+    }
+...
+```
+
