@@ -779,11 +779,84 @@ import NaoEncontrado from "../erros/NaoEncontrado.js";
 // Livro.js
 
 ...
+    editora: {
+        ...
+        enum: {
+            values: ["Casa do código", "Alura"],
+            message: "A editora {VALUE} não é um valor permitido."
+        } //para valores permitidos em editora
+    }
     numeroPaginas: {
         type: Number,
-        min: 10,
-        max: 5000
+        min: [10, "O número de páginas deve estar entre 10 e 5000. Valor fornecido: {VALUE}"],
+        max: [5000, "O número de páginas deve estar entre 10 e 5000. Valor fornecido: {VALUE}"]
     }
 ...
 ```
+
+<br><br>
+
+**validação personalizada**
+
+```
+// Livros.js
+...
+    paginas: {
+        type: Number,
+          paginas: {
+    type: Number,
+    validate: {
+      validator: (valor) => {
+        return valor >= 10 && valor <= 5000;
+      },
+      message: "O número de páginas deve estar entre 10 e 5000. Valor fornecido: {VALUE}"
+    }
+...
+```
+
+<br><br>
+
+**validação global**
+
+```
+// src/models/index.js
+
+import "./validadorGlobal.js";
+import autores from "./Autor.js";
+import livros from "./Livro.js";
+
+
+export { autores, livros };
+```
+
+```
+´´´
+// src/controllers/autoresController.js
+
+...
+import { autores } from "../models/index.js";
+´´´
+```
+
+```
+´´´
+// src/controllers/livrosController.js
+
+...
+import { livros } from "../models/index.js";
+´´´
+```
+
+```
+// src/models/validadorGlobal.js
+
+import mongoose from "mongoose";
+
+mongoose.Schema.Types.String.set("validate", {
+  validator: (valor) => valor !== "",
+  message: ({ path }) => `O campo ${path} foi fornecido em branco.`
+});
+```
+
+
 
