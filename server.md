@@ -857,6 +857,53 @@ mongoose.Schema.Types.String.set("validate", {
   message: ({ path }) => `O campo ${path} foi fornecido em branco.`
 });
 ```
+<br><br>
 
+**buscando por título do livro**
+- troque o método listarLivrosPorEditora por:
+```
+// src/controllers/livrosController.js
+
+...
+    static listarLivroPorFiltro = async (req, res, next) => {
+        try {
+            const { editora, titulo } = req.query;
+
+            const busca = {};
+
+            if (editora) busca.editora = editora;
+            if (titulo) busca.titulo = titulo;
+
+            const livrosResultado = await livros.find(busca);
+        }
+    }
+...
+```
+
+```
+// src/routes/livrosRoutes.js
+
+...
+    .get("/livros/busca", LivroController.listarLivroPorFiltro
+...
+```
+
+<br><br>
+
+**aplicando regex na busca**
+
+```
+// src/controllers/livrosController.js
+
+...
+    try {
+    const { editora, livro } = req.query;
+
+    const busca = {};
+
+    static listarLivroPorFiltro...
+        if (titulo) busca.titulo = { $regex: titulo, $options: "i"}; //o "i" é para não fazer distinção entre maiúsculas e minúscula
+...
+```
 
 
