@@ -905,5 +905,182 @@ mongoose.Schema.Types.String.set("validate", {
         if (titulo) busca.titulo = { $regex: titulo, $options: "i"}; //o "i" é para não fazer distinção entre maiúsculas e minúscula
 ...
 ```
+<br><br>
 
+**filtrando por nome do autor**
 
+alteraram o código para: https://github.com/alura-cursos/api-node-express-2/tree/aula-4
+
+mas caso queira acrescentar algum padrão de query, faça:
+
+```
+// livrosController.js
+
+async function processaBusca(parametros) {
+    const { editora, titulo, minPaginas, maxPaginas, nomeAutor } = parametros;
+
+    if (editora) busca.editora = editora;
+    if (titulo) busca.titulo = { $regex: titulo, $options: "i" };
+
+    if (min ...
+
+    if (nomeAutor) {
+        const autor = await autores.findOne({ nome: nomeAutor });
+
+        const autorId = autor._id;
+
+        busca.autor = autor._id;
+    }
+
+    return busca;
+```
+
+<br><br>
+
+**tratando autor não encontrado**
+
+```
+// livrosController.js
+
+processaBusca...
+    let busca = {};
+
+    if (nomeAutor) {
+        const autor = await autores.findOne({ nome: nomeAutor});
+
+        if (autor !== null) {
+            busca.autor = autor._id;
+        } else {
+            busca = null;
+        }
+...
+
+listarLivroPorFiltro...
+    const busca = ...
+
+    if (busca !== null) {
+        const livrosResultado...
+        res.status...
+    } else {
+        res.stauts(200).send([]);
+    }
+```
+
+<br><br>
+
+**paginando uma rota**
+```
+// livrosController.js
+import RequisicaoIncorreta from "../erros/RequisicaoIncorreta.js"
+
+    listrarLivros...
+        try {
+            let {limite = 5, pagina = 1 } = req.query;
+
+            limite = parseInt(limite);
+            pagina = parseInt(pagina);
+
+            if (limite > 0 && pagina > 0 {
+              const livrosResultado = await livros.find()
+                  .skip((pagina - 1) * limite)
+                  .limit(limite)
+                  .populate("autor")
+                  .exec();
+            } else {
+                next(new RequisicaoIncorreta());
+            }
+```
+
+```
+// middlewares/manipuladorDeErros.js
+
+...manipuladorDeErros...
+    trocar a linha do NaoEncontrado e tirar seu import:
+    } else if (erro instanceof ErroBase)
+```
+
+**ordenando o resultado**
+```
+// livroController.js
+
+    ...listarLivros
+    let { limite..., ordenacao  = "_id:-1" } = ...
+
+    let [campoOrdenacao, ordem] = ordenacao.split(":");
+
+    ...
+    ordem = parseInt(ordem);
+
+    const livrosResultado = await livros.find()
+        .sort({ [campoOrdenacao]: ordem }) // para o titulo em ordem crescente: titulo: 1
+        ...
+```
+
+<br><br>
+
+**reutilizando paginação**
+```
+// livroController.js
+
+class LivroController {
+    ...listarLivros
+    // cortar todo o bloco try
+    try {
+        const buscaLivros = livros.find();
+
+        req.resultado = buscaLivros;
+
+        next();
+```
+
+```
+// middlewares/paginar.js
+
+async function paginar(req, res, next) {
+    try {
+        // cole aqui o bloco try do livro controller
+        ...
+        ordem = ...
+
+        const resultado = req.resultado;
+
+        const resultadoPaginado = await resultado.find()
+        ...
+    } catch (erro) {
+        next(erro);
+    }
+}
+
+export default paginar;
+```
+
+```
+// livrosRoutes.js
+
+import paginar from '../middleware/paginar.js';
+
+    .get("/livros", LivroController.listarLivros, paginar)
+```
+
+// para adicionar o middleware tbm em livros/busca:
+
+```
+// livrosRoutes.js
+    ... .listarLivroPorFiltro, paginar)
+```
+
+```
+// livrosController.js
+
+ ...listarLIvroPorFiltro...
+    ...
+    if (busca !== null) {
+        const livrosResultado = livro.
+            .find(busca)
+            ...
+
+        req.resultado = livrosResultado;
+
+        //retirar o res e substituir por:
+        next();
+```
